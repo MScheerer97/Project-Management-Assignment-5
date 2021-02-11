@@ -60,8 +60,7 @@ glimpse(venue_data)
 root <-  "https://app.ticketmaster.com/discovery/v2/venues"
 get_it <- GET(url = root, query = list(apikey = .key, 
                                        countryCode = "DE", 
-                                       locale = "*", 
-                                       page = 21))
+                                       locale = "*"))
 
 content <-  fromJSON(content(get_it, as = "text"))
 
@@ -223,33 +222,197 @@ ggplot() +
   geom_polygon(
     aes(x = long, y = lat, group = group), data = map_data("world", region = "Germany"),
     fill = "grey90",color = "black") +
-  geom_point(data=mapdata, aes(x=longitude, y=latitude), color="red") +
+  geom_point(data = venue_data, aes(x=longitude, y=latitude), color="red") +
   theme_void() + coord_quickmap() +
   labs(title = "Event locations across Germany", caption = "Source: ticketmaster.com") +
   theme(title = element_text(size=8, face='bold'),
-        plot.caption = element_text(face = "italic"))
+        plot.caption = element_text(face = "italic"), 
+        plot.title = element_text(hjust = 0.5))
 
 
 
 
 
 
+###################################################### New Country: Finland
+# test with page 0
+root <-  "https://app.ticketmaster.com/discovery/v2/venues"
+get_it <- GET(url = root, query = list(apikey = .key, 
+                                       countryCode = "FI", 
+                                       locale = "*"))
+content <-  fromJSON(content(get_it, as = "text"))
+
+venue_data <- content[["_embedded"]][["venues"]]
+glimpse(venue_data)
 
 
+n <-  as.numeric(content$page[["totalElements"]])
+
+# adjust pages for for-loop later
+pages <- as.numeric(content$page[["totalPages"]])-1
+entries <- as.numeric(content$page[["size"]])
+
+entries_last_page <- n-entries*pages
+
+# adjust full pages -1 for the for-loop
+
+venue_data <- data.frame(
+  name = character(n),
+  city = character(n),
+  postalCode = character(n),
+  address = character(n),
+  url = character(n),
+  longitude = character(n), 
+  latitude = character(n)
+)
+
+# robust code for the loop: last page is not full; considered by applying 
+# if statement
+
+for(j in 0:pages){
+  if(j < pages){
+    get_it <- GET(url = root, query = list(apikey = .key, 
+                                           countryCode = "FI", 
+                                           locale = "*", 
+                                           page = j))
+    content <-  fromJSON(content(get_it, as = "text"))
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$name))){
+      venue_data[(j*entries+1):(j*entries+entries), "name"] <- content[["_embedded"]][["venues"]]$name
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries), "name"] <- NA
+    }
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$city$name))){
+      venue_data[(j*entries+1):(j*entries+entries), "city"] <- content[["_embedded"]][["venues"]]$city$name
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries), "city"] <- NA
+    }
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$postalCode))){
+      venue_data[(j*entries+1):(j*entries+entries), "postalCode"] <- content[["_embedded"]][["venues"]]$postalCode
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries), "postalCode"] <- NA
+    }
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$url))){
+      venue_data[(j*entries+1):(j*entries+entries), "url"] <- content[["_embedded"]][["venues"]]$url
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries), "url"] <- NA
+    }
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$address$line1))){
+      venue_data[(j*entries+1):(j*entries+entries), "address"] <- content[["_embedded"]][["venues"]]$address$line1
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries), "address"] <- NA
+    }
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$location))){
+      venue_data[(j*entries+1):(j*entries+entries), "longitude"] <- content[["_embedded"]][["venues"]]$location$longitude
+      venue_data[(j*entries+1):(j*entries+entries), "latitude"] <- content[["_embedded"]][["venues"]]$location$latitude
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries), "longitude"] <- NA
+      venue_data[(j*entries+1):(j*entries+entries), "latitude"] <- NA
+    }
+    
+    
+    ######################## Now code for the last page: only 18 entries at 
+    ######################## the time of writing this code
+    
+  } else if(j == pages){
+    get_it <- GET(url = root, query = list(apikey = .key, 
+                                           countryCode = "FI", 
+                                           locale = "*", 
+                                           page = j))
+    content <-  fromJSON(content(get_it, as = "text"))
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$name))){
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "name"] <- content[["_embedded"]][["venues"]]$name
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "name"] <- NA
+    }
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$city$name))){
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "city"] <- content[["_embedded"]][["venues"]]$city$name
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "city"] <- NA
+    }
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$postalCode))){
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "postalCode"] <- content[["_embedded"]][["venues"]]$postalCode
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "postalCode"] <- NA
+    }
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$url))){
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "url"] <- content[["_embedded"]][["venues"]]$url
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "url"] <- NA
+    }
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$address$line1))){
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "address"] <- content[["_embedded"]][["venues"]]$address$line1
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "address"] <- NA
+    }
+    
+    if(!(is.null(content[["_embedded"]][["venues"]]$location))){
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "longitude"] <- content[["_embedded"]][["venues"]]$location$longitude
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "latitude"] <- content[["_embedded"]][["venues"]]$location$latitude
+    }
+    else{
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "longitude"] <- NA
+      venue_data[(j*entries+1):(j*entries+entries_last_page), "latitude"] <- NA
+    }
+    
+    
+  }
+  Sys.sleep(0.2)
+}
+
+venue_data$latitude <- as.numeric(venue_data$latitude)
+venue_data$longitude <- as.numeric(venue_data$longitude)
+
+glimpse(venue_data)
+sum(is.na(venue_data$longitude))
 
 
+############################## Map Finland
+## tool to convert longitude/latitude: http://www.mwegner.de/geo/geo-koordinaten/koordinaten-umrechnen.html
+## extreme locations of Finland: https://en.wikipedia.org/wiki/List_of_extreme_points_of_Finland
 
+long_range <- c(19.8963888889, 29.6244444444)
+lat_range <- c(60.1219444444, 68.6108333333)
 
+venue_data$longitude <- ifelse((venue_data$longitude > long_range[2]) | 
+                                 (venue_data$longitude < long_range[1]), NA, venue_data$longitude)
 
+venue_data$latitude <- ifelse((venue_data$latitude > lat_range[2]) | 
+                                (venue_data$latitude < lat_range[1]), NA, venue_data$latitude)
 
+str(venue_data)
 
-
-
-
-
-
-
-
+ggplot() +
+  geom_polygon(
+    aes(x = long, y = lat, group = group), data = map_data("world", region = "Finland"),
+    fill = "grey90",color = "black") +
+  geom_point(data = venue_data, aes(x=longitude, y=latitude), color="red") +
+  theme_void() + coord_quickmap() +
+  labs(title = "Event locations across Finland", caption = "Source: ticketmaster.com") +
+  theme(title = element_text(size=8, face='bold'),
+        plot.caption = element_text(face = "italic"), 
+        plot.title = element_text(hjust = 0.5))
 
 
 
