@@ -50,7 +50,6 @@ url <- venue_data$url
 longitude <- as.numeric(venue_data$location$longitude)
 latitude <- as.numeric(venue_data$location$latitude)
 
-
 venue_data <- data.frame(name, city, postalCode, address, url, longitude, latitude)
 
 glimpse(venue_data)
@@ -97,44 +96,38 @@ for(j in 0:pages){
     
     if(!(is.null(content[["_embedded"]][["venues"]]$name))){
       venue_data[(j*entries+1):(j*entries+entries), "name"] <- content[["_embedded"]][["venues"]]$name
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries), "name"] <- NA
     }
     
     if(!(is.null(content[["_embedded"]][["venues"]]$city$name))){
       venue_data[(j*entries+1):(j*entries+entries), "city"] <- content[["_embedded"]][["venues"]]$city$name
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries), "city"] <- NA
     }
     
     if(!(is.null(content[["_embedded"]][["venues"]]$postalCode))){
       venue_data[(j*entries+1):(j*entries+entries), "postalCode"] <- content[["_embedded"]][["venues"]]$postalCode
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries), "postalCode"] <- NA
     }
     
     if(!(is.null(content[["_embedded"]][["venues"]]$url))){
       venue_data[(j*entries+1):(j*entries+entries), "url"] <- content[["_embedded"]][["venues"]]$url
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries), "url"] <- NA
     }
     
     if(!(is.null(content[["_embedded"]][["venues"]]$address$line1))){
       venue_data[(j*entries+1):(j*entries+entries), "address"] <- content[["_embedded"]][["venues"]]$address$line1
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries), "address"] <- NA
     }
 
     if(!(is.null(content[["_embedded"]][["venues"]]$location))){
       venue_data[(j*entries+1):(j*entries+entries), "longitude"] <- content[["_embedded"]][["venues"]]$location$longitude
       venue_data[(j*entries+1):(j*entries+entries), "latitude"] <- content[["_embedded"]][["venues"]]$location$latitude
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries), "longitude"] <- NA
       venue_data[(j*entries+1):(j*entries+entries), "latitude"] <- NA
     }
@@ -152,44 +145,38 @@ for(j in 0:pages){
     
     if(!(is.null(content[["_embedded"]][["venues"]]$name))){
       venue_data[(j*entries+1):(j*entries+entries_last_page), "name"] <- content[["_embedded"]][["venues"]]$name
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries_last_page), "name"] <- NA
     }
     
     if(!(is.null(content[["_embedded"]][["venues"]]$city$name))){
       venue_data[(j*entries+1):(j*entries+entries_last_page), "city"] <- content[["_embedded"]][["venues"]]$city$name
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries_last_page), "city"] <- NA
     }
     
     if(!(is.null(content[["_embedded"]][["venues"]]$postalCode))){
       venue_data[(j*entries+1):(j*entries+entries_last_page), "postalCode"] <- content[["_embedded"]][["venues"]]$postalCode
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries_last_page), "postalCode"] <- NA
     }
     
     if(!(is.null(content[["_embedded"]][["venues"]]$url))){
       venue_data[(j*entries+1):(j*entries+entries_last_page), "url"] <- content[["_embedded"]][["venues"]]$url
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries_last_page), "url"] <- NA
     }
     
     if(!(is.null(content[["_embedded"]][["venues"]]$address$line1))){
       venue_data[(j*entries+1):(j*entries+entries_last_page), "address"] <- content[["_embedded"]][["venues"]]$address$line1
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries_last_page), "address"] <- NA
     }
     
     if(!(is.null(content[["_embedded"]][["venues"]]$location))){
       venue_data[(j*entries+1):(j*entries+entries_last_page), "longitude"] <- content[["_embedded"]][["venues"]]$location$longitude
       venue_data[(j*entries+1):(j*entries+entries_last_page), "latitude"] <- content[["_embedded"]][["venues"]]$location$latitude
-    }
-    else{
+    } else{
       venue_data[(j*entries+1):(j*entries+entries_last_page), "longitude"] <- NA
       venue_data[(j*entries+1):(j*entries+entries_last_page), "latitude"] <- NA
     }
@@ -198,6 +185,8 @@ for(j in 0:pages){
   }
   Sys.sleep(0.2)
 }
+
+venue_data[duplicated(venue_data), ]
 
 venue_data$latitude <- as.numeric(venue_data$latitude)
 venue_data$longitude <- as.numeric(venue_data$longitude)
